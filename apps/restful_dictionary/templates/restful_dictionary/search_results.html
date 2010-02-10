@@ -1,0 +1,10 @@
+<html>
+<body>
+<h1>Results</h1>
+{% autoescape off %}
+{% for result in results %}
+  <a href="{{ result.uri }}">{{ result.heading }}</a><br/>
+{% endfor %}
+{% endautoescape %}
+</body>
+</html>

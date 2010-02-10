@@ -1,0 +1,114 @@
+<html>
+<head>
+<link rel="stylesheet" href="/media/js/dojo-1.3.2/dojo/resources/dojo.css"/>
+<link rel="stylesheet" href="/media/js/dojo-1.3.2/dijit/themes/tundra/tundra.css"/>
+<script type="text/javascript" src="http://o.aolcdn.com/dojo/1.3/dojo/dojo.xd.js"></script>
+<script type="text/javascript">
+  dojo.require("dijit.dijit");
+  dojo.require("dijit.TooltipDialog");
+  //dojo.require("dijit.Dialog");
+  //dojo.require("dijit.Dialog");
+  //dojo.require("dijit.form.TextBox");  
+  //dojo.require("dijit.form.TimeTextBox");
+  dojo.require("dijit.form.Button");
+  //dojo.require("dijit.Menu");
+  //dojo.require("dijit.form.DateTextBox");
+  //dojo.require("dijit.form.FilteringSelect");
+
+  dojo.addOnLoad(function(){
+    dojo.query('.dict_inline_content').forEach(function(inlineReference) {
+      dojo.hide(inlineReference);
+    });
+    dojo.query('.dict_inline_content_link').forEach(function(inlineReferenceLink) {
+      dojo.connect(inlineReferenceLink, 'onclick', function(evt) {
+        evt.preventDefault();
+        dojo.toggle(dojo.byId(this.id.split('_link')[0]));
+      });
+    });
+
+    var jumpTooltip = createDictJumpMenu();
+    dojo.connect(dojo.body(), "onmouseup",function(evt) {
+      showDictJumpMenu(getSelectedText());
+    });
+  });
+  
+  function searchForWord(word) {
+    window.location = '{{ word_search_uri_base }}'+word;
+  }
+  
+  function createDictJumpMenu() {
+    var tooltipDialog = new dijit.TooltipDialog({title: 'Dictionary Jump', style:"display:none"}, 'dictJumpTltDlg');
+    dojo.connect(tooltipDialog, 'onClick', function(evt) {
+      dijit.popup.close(this);  
+      searchForWord(getSelectedText().toString()); //TODO store the string
+    });
+    dojo.subscribe('widgetBlur', tooltipDialog, function(widget) {
+      if (widget == this) {
+        dijit.popup.close(this);
+      }
+    });
+
+    tooltipDialog.startup();
+    return tooltipDialog;
+  }
+  function showDictJumpMenu(textSelection) {
+    if (textSelection != undefined) {
+       if (!textSelection.isCollapsed) {
+          //place a <span> so we can get coords of the beginning of the selection
+          var range = textSelection.getRangeAt(0); //TODO incompatible with IE //TODO allow for multiple ranges
+          //var text = range.toString().split('\n', 2)[0]; //get first line
+          var startContainer = range.startContainer;
+          var endContainer = range.endContainer;
+          if (startContainer != endContainer) return; //should prevent menu from showing for multi-line selections
+          var startOffset = range.startOffset;
+          var endOffset = range.endOffset;
+          
+          range.collapse(true); //gecko fix
+          var spanNode = dojo.create('span');
+          range.insertNode(spanNode);
+
+          jumpTooltip = dijit.byId('dictJumpTltDlg');
+          dijit.popup.open({
+            popup: jumpTooltip,
+            around: spanNode,
+            onExecute: function() { dijit.popup.close(); }
+          });
+          
+          dojo.destroy(spanNode);
+          document.body.normalize(); //TODO only normalize the affected nodes
+          newRange = document.createRange();
+          newRange.setStart(startContainer, startOffset);
+          newRange.setEnd(endContainer, endOffset);
+          textSelection.addRange(newRange); //highlights the text after inserting the node, which makes the selection disappear
+        }
+      }
+  }
+  
+  function getSelectedText() {
+    var sel = '';
+    if (window.getSelection) {sel = window.getSelection();
+    } else if (document.getSelection) {sel = document.getSelection();
+    } else if (document.selection) {sel = document.selection.createRange().text;
+    } else {sel = undefined;}
+    return sel;
+  }
+
+</script>
+
+<style type="text/css">
+  .keyword {
+    font-weight: bold;
+    color: red;
+  }
+</style>
+</head>
+<body class="tundra">
+<div id="dictJumpTltDlg" style="display:none">
+  <button dojoType="dijit.form.Button">Lookup word</button>
+</div>
+
+{% autoescape off %}
+{{ text }}
+{% endautoescape %}
+</body>
+</html>

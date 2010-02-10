@@ -1,0 +1,7 @@
+<html>
+<body>
+{% for result in results %}
+  <a href="{{ result.URI }}">{{ result.heading }}</a><br/>
+{% endfor %}
+</body>
+</html>

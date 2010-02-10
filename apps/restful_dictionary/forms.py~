@@ -1,0 +1,7 @@
+from django import forms
+
+class SearchForm(forms.Form):
+  dictionary = forms.ChoiceField([('chujiten', 'Kenkyusha',)])
+  query = forms.CharField(max_length=100)
+  search_method = forms.ChoiceField([('exact', 'Exact',), ('prefix', 'Starts with',), ('substring', 'Substring',)]
+  

@@ -1,0 +1,9 @@
+<html>
+<body>
+<h1>{{ book.name.title }}</h1>
+<h3>Subbooks</h3>
+{% for key, subbook in book.subbooks.items %}
+  {{ subbook.name }}<br/>
+{% endfor %}
+</body>
+</html>

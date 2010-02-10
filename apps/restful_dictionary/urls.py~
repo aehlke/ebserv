@@ -1,0 +1,5 @@
+from django.conf.urls.defaults import *
+
+urlpatterns = patterns('ebserv.apps.restful_dictionary.views',
+    (r'^search/$', 'views.search'),
+)

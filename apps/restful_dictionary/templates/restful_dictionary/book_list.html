@@ -1,0 +1,8 @@
+<html>
+<body>
+<h1>Books</h1>
+{% for book in books %}
+  <a href="{{ book.URI }}">{{ book.name }}</a><br/>
+{% endfor %}
+</body>
+</html>
